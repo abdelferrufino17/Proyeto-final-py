@@ -6,7 +6,7 @@ Metodos_de_pago = {
     1:"Efectivo",
     2:"Transferencia",
     3:"Tarjeta de credito",
-    4:"Tarjeta de débito"
+    4:"Tarjeta de debito"
 }
 
 
@@ -26,41 +26,58 @@ Meses = {
 }
 
 Categoria = {
-    0:"Laptop",
-    1:"Gaming",
-    2:"Smartphone",
-    3:"Tablet",
-    4:"Accesorios",
-    5:"Monitor",
-    6:"Audio",
-    
+    1:"Laptop",
+    2:"Gaming",
+    3:"Smartphone",
+    4:"Tablet",
+    5:"Accesorios",
+    6:"Monitor",
+    7:"Audio"
+}
+
+
+ciudades = {
+    1:" Monterrey",
+    2:"Guadalajara",
+    3:"Ciudad de Mexico",
+    4:"Tijuana",
+    5:"Puebla",
+    6:"Cancun",
+    7:"Queretaro",
+    8:"Toluca",
+    9:"Leon",
+    10:"MMerida"
 }
 
 
 def carga_de_datos ():
-    ruta = Path(__file__).parent / "ventas_limpias.csv"
-    df = pd.read_csv(ruta)
+    ruta = Path(__file__).parent / "ventas_limpias.xlsx"
+    df = pd.read_excel(ruta)
 
-    df["datetime"]=pd.to_datetime(df["datetime"])
-    df["año"] = df["datetime"].dt.year
-    df["mes"] = df["datetime"].dt.month
+    df["fecha"]=pd.to_datetime(df['fecha'])
+    df["año"] = df['fecha'].dt.year
+    df["mes"] = df['fecha'].dt.month
     df["mes_nombre"] = df["mes"].map(Meses)
     df["metodo_pago"] = df["metodo_pago"].map(Metodos_de_pago)
+    df["ciudad"] = df["ciudad"].map(ciudades)
 
     return df
 
 
-def filtrar_datos(df,Metodos_de_pago, Meses, Categoria):
+def filtrar_datos(df,metodo_pago, mes, categoria, ciudad, año):
     resultado = df.copy()
 
-    if Metodos_de_pago != "Todos":
-        resultado = resultado[resultado["metodo_pago"] == Metodos_de_pago]
+    if metodo_pago != "Todos":
+        resultado = resultado[resultado["metodo_pago"] == metodo_pago]
 
-    if Meses != "Todos":
-         resultado = resultado[resultado["mes_nombre"] == Meses]
+    if mes != "Todos":
+         resultado = resultado[resultado["mes_nombre"] == mes]
 
-    if Categoria != "Todos":
-            resultado = resultado[resultado["Categoria"] == Categoria]
+    if categoria != "Todos":
+            resultado = resultado[resultado["categoria"] == categoria]
+
+    if ciudad != "Todos":
+        resultado = resultado[resultado["ciudad"] == ciudad]
 
     if año != "Todos":
          resultado = resultado[resultado["año"] == año]
@@ -76,12 +93,12 @@ def preparar_analisis(df, opcion):
         return datos.to_frame("Ventas"), "barras"
 
     if opcion == "Ventas por categoria":
-        orden = ["laptop","gaming","smartphone","tablet","accesorios","monitor","audio"]
+        orden = ["Laptop","Gaming","Smartphone","Tablet","Accesorios","Monitor","Audio"]
         datos = df.groupby("Categoria")["total_ventas"].sum().reindex(orden)
         return datos.to_frame("Ventas"),"barras"
 
 
     if opcion == "Ventas por metos de pago":
-        orden = ["Efectivo","Transferencia","Tarjeta de credito","Tarjeta de débito"]
+        orden = ["Efectivo","Transferencia","Tarjeta de credito","Tarjeta de debito"]
         datos = df.groupby("metodo_pago")["total_ventas"].sum().reindex(orden)
         return datos.to_frame("Ventas"),"barras"

@@ -6,7 +6,7 @@ st.set_page_config(page_title="Analisis de Ventas", page_icon="💻",layout="wid
 df = carga_de_datos()
 
 st.title("Analisis de Ventas de productos tecnologicos.")
-st.write("Bienvenido a la aplicacion de analisis de ventas de porductos tegnologicos.")
+st.write("Bienvenido a la aplicacion de analisis de ventas de porductos tecnologicos.")
 
 Inicio,Exploracion,Analisis = st.tabs(["Inicio","Exploracion","Analisis"])
 
@@ -17,51 +17,91 @@ with Inicio:
               " detalle relevantes.")
 
     c1, c2, c3, c4, c5 = st.columns(5)
-    c1.metric("cantidad", f"{len(df):,}")
+    c1.metric("Total transacciones realizadas", f"{len(df):,}")
     c2.metric("Ingresos totales", f"{df["total_venta"].sum():,}")
     c3.metric("Promedio de ingresos por mes", f"{df["total_venta"].sum() / df["mes"].nunique():,.2f}")
-    c4.metric("Unidades totales vendidas", f"{df["Cantidad"].sum():,}")
-    c5.metric("Promedio unidades vendidas por mes", f"{df["Cantidad"].sum() / df["mes"].nunique():,}")
+    c4.metric("Unidades totales vendidas", f"{df["cantidad"].sum():,}")
+    c5.metric("Promedio unidades vendidas por mes", f"{df["cantidad"].sum() / df["mes"].nunique():,}")
 
-st.subheader("Resumen del conjunto de datos")
-columnas = ["mes","categoria","Producto","cantidad","total_venta",]
-st.dataframe(df[columnas].head(10), use_container_width=True)   
+st.subheader("Resumen del conjunto de datos, top 10 productos que generan mas ingresos")
+columnas = [ "fecha","mes_nombre","categoria","producto","cantidad","total_venta"]
+
+df_ordenado = df.sort_values(
+    by="total_venta",
+    ascending=False
+)
+
+st.dataframe(
+    df_ordenado[columnas].head(12),
+    use_container_width=True
+)
+
 
 with Exploracion:
     st.header("Exploracion de los datos")
-    st.write("Selecciona algunos filtros yobservamos como ocurren los cambios")
 
-    Estacion = st.selectbox("Selecciona la estacion",["Todas"]+ list(df["Estacion N"].unique()))
-    Clima = st.selectbox("Selecciona el clima",["Todos"] + list(df["Clima N"].unique()))
-    ano = st.selectbox("Selecciona el Ano",["Todos"] + list(df["Ano"].unique()))
-    Mes =  st.selectbox("Selecciona el mes",["Todos"] + ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"])
+    mes = st.selectbox("Selecciona el mes",["Todas"]+ ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"])
+    metodo_pago= st.selectbox("Selecciona el metodo de pago",["Todos"] + ["Efectivo","Tarjeta de credito","Tarjeta de debito","Transferencia"])
+    año = st.selectbox("Selecciona el año",["Todos"] + list(df["año"].unique()))
+    categorias =  st.selectbox("Selecciona la categoria",["Todos"] + ["Laptop","Gaming","Smartphone","Tablet","Accesorios","Monitor","Audio"])
+    ciudad = st.selectbox("Selecciona la ciudad",["Todos"] + ["Monterrey","Guadalajara","Ciudad de Mexico","Tijuana","Puebla","Cancun","Queretaro","Toluca","Leon","Merida"])
 
-    filtrado = filtrar_datos(df,Estacion, Clima, ano, Mes)
+
+    filtrado = filtrar_datos(df,metodo_pago	, mes, categorias, ciudad, año)
     st.info(f"Se han filtrado {len(filtrado):,} registros.")
 
-    columnas = ["datetime", "Estacion N", "Clima N", "temp", "humidity","count"]
-    st.dataframe(filtrado[columnas], use_container_width=True, height=350)
-
-    if st.checkbox("Mostrar resumen estadistico"):
-        st.dataframe(filtrado[["temp", "humidity", "windspeed", "count"]].describe().round(2), use_container_width=True)
-
-    if st.checkbox("Mostrar datos faltantes"):
-        st.dataframe(filtrado.isnull().sum().to_frame(name="Faltantes"), use_container_width=True)
-
+    columnas = ["fecha","producto","cantidad","total_venta"]
+    st.dataframe(filtrado[columnas], use_container_width=True, height=350) 
 
 
 with Analisis:
     st.header("Análisis descriptivo")
-    st.write("Aquí solo visualizamos cómo se distribuyen las rentas de bicicletas en diferentes categorías.")
+    st.write("Aquí solo visualizamos cómo se distribuyen las ventas  en diferentes categorías.")
 
-    opcion = st.selectbox("¿Qué desea analizar?", ["Rentas por mes", "Rentas por hora", "Rentas por estación", "Rentas según el clima"])
+    opcion = st.selectbox("¿Qué desea analizar?", ["Ventas por mes", "Ventas por categorias", "Unidades vendidas por producto"])
 
-    datos_grafico, tipo = preparar_analisis(df, opcion)
+    if opcion == "Ventas por mes":
+        datos_grafico = (
+            df.groupby("mes_nombre")["total_venta"]
+            .sum()
+            .reset_index()
+        )
+        datos_grafico.columns = ["Mes", "Ingresos"]
+        tipo = "linea"
+
+    elif opcion == "Ventas por categorias":
+        datos_grafico = (
+            df.groupby("categoria")["total_venta"]
+            .sum()
+            .sort_values(ascending=False)
+            .reset_index()
+        )
+        datos_grafico.columns = ["Categoria", "Ingresos"]
+        tipo = "barras"
+
+    else:
+        datos_grafico = (
+            df.groupby("producto")["cantidad"]
+            .sum()
+            .sort_values(ascending=False)
+            .reset_index()
+        )
+        datos_grafico.columns = ["Producto", "Unidades vendidas"]
+        tipo = "horizontal"
 
     st.subheader(opcion)
-    if tipo == "linea":
-        st.line_chart(datos_grafico)
-    else:
-        st.bar_chart(datos_grafico)
 
-    st.dataframe(datos_grafico, use_container_width=True)
+    if tipo == "barras":
+        st.line_chart(
+            datos_grafico.set_index("Mes")["Ingresos"]
+        )
+    else:
+        st.bar_chart(
+            datos_grafico.set_index(datos_grafico.columns[0])["Ingresos"]
+        )
+
+    st.dataframe(
+        datos_grafico,
+        use_container_width=True,
+        hide_index=True
+    )
