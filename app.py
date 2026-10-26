@@ -58,9 +58,9 @@ with Analisis:
     st.header("Análisis descriptivo")
     st.write("Aquí solo visualizamos cómo se distribuyen las ventas  en diferentes categorías.")
 
-    opcion = st.selectbox("¿Qué desea analizar?", ["Ventas por mes", "Ventas por categorias", "Unidades vendidas por producto"])
+    opcion = st.selectbox("¿Qué desea analizar?", ["Ingreso total por mes", "Ingreso total por categorias", "Unidades vendidas por producto"])
 
-    if opcion == "Ventas por mes":
+    if opcion == "Ingreso total por mes":
         datos_grafico = (
             df.groupby("mes_nombre")["total_venta"]
             .sum()
@@ -69,7 +69,7 @@ with Analisis:
         datos_grafico.columns = ["Mes", "Ingresos"]
         tipo ="lineas"
 
-    elif opcion == "Ventas por categorias":
+    elif opcion == "Ingreso total por categorias":
         datos_grafico = (
             df.groupby("categoria")["total_venta"]
             .sum()
