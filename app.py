@@ -67,7 +67,7 @@ with Analisis:
             .reset_index()
         )
         datos_grafico.columns = ["Mes", "Ingresos"]
-        tipo = "linea"
+        tipo ="lineas"
 
     elif opcion == "Ventas por categorias":
         datos_grafico = (
@@ -77,28 +77,38 @@ with Analisis:
             .reset_index()
         )
         datos_grafico.columns = ["Categoria", "Ingresos"]
-        tipo = "barras"
+        tipo ="barras"
 
     else:
         datos_grafico = (
-            df.groupby("producto")["cantidad"]
-            .sum()
-            .sort_values(ascending=False)
-            .reset_index()
-        )
+        df.groupby("producto")["cantidad"]
+        .sum()
+        .sort_values(ascending=False)
+        .head(10)
+        .reset_index()
+    )
+
         datos_grafico.columns = ["Producto", "Unidades vendidas"]
         tipo = "horizontal"
 
     st.subheader(opcion)
 
-    if tipo == "barras":
+    if tipo =="lineas":
         st.line_chart(
-            datos_grafico.set_index("Mes")["Ingresos"]
-        )
+        datos_grafico.set_index("Mes")["Ingresos"]
+    )
+        
+    elif tipo =="barras":
+        st.bar_chart(
+        datos_grafico.set_index(datos_grafico.columns[0])["Ingresos"],
+        horizontal=False
+    )
+
     else:
         st.bar_chart(
-            datos_grafico.set_index(datos_grafico.columns[0])["Ingresos"]
-        )
+        datos_grafico.set_index("Producto")["Unidades vendidas"],
+        horizontal=True
+    )
 
     st.dataframe(
         datos_grafico,
