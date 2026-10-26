@@ -23,8 +23,8 @@ with Inicio:
     c4.metric("Unidades totales vendidas", f"{df["cantidad"].sum():,}")
     c5.metric("Promedio unidades vendidas por mes", f"{df["cantidad"].sum() / df["mes"].nunique():,}")
 
-st.subheader("Resumen del conjunto de datos, top 10 productos que generan mas ingresos")
-columnas = [ "fecha","mes_nombre","categoria","producto","cantidad","total_venta"]
+    st.subheader("Resumen del conjunto de datos, top 10 productos que generan mas ingresos")
+    columnas = [ "fecha","mes_nombre","categoria","producto","cantidad","total_venta"]
 
 df_ordenado = df.sort_values(
     by="total_venta",
