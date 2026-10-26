@@ -88,7 +88,7 @@ def filtrar_datos(df,metodo_pago, mes, categoria, ciudad, año):
 
 def preparar_analisis(df, opcion):
     if opcion == "Ventas por mes":
-        datos = df.groupby("mes")["total_ventas"].sum().reindex(range(1,13))
+        datos = df.groupby("mes")["total_venta"].sum().reindex(range(1,13))
         datos.index = [Meses[i] for i in datos.index]
         return datos.to_frame("Ventas"), "barras"
 
