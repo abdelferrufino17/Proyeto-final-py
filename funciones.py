@@ -51,8 +51,8 @@ ciudades = {
 
 
 def carga_de_datos ():
-    ruta = Path(__file__).parent / "ventas_limpias.xlsx"
-    df = pd.read_excel(ruta)
+    ruta = Path(__file__).parent / "ventas_limpias.csv"
+    df = pd.read_csv(ruta)
 
     df["fecha"]=pd.to_datetime(df['fecha'])
     df["año"] = df['fecha'].dt.year
