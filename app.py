@@ -62,7 +62,7 @@ with Analisis:
 
     if opcion == "Ingreso total por mes":
         datos_grafico = (
-            df.groupby("mes_nombre")["total_venta"]
+            df.groupby("mes_nn")["total_venta"]
             .sum()
             .reset_index()
         )
@@ -95,7 +95,7 @@ with Analisis:
 
     if tipo =="lineas":
         st.line_chart(
-        datos_grafico.set_index("Mes")["Ingresos"]
+        datos_grafico.set_index("Mes")["Ingresos"],
     )
         
     elif tipo =="barras":
