@@ -26,15 +26,15 @@ with Inicio:
     st.subheader("Resumen del conjunto de datos, top 10 productos que generan mas ingresos")
     columnas = [ "fecha","mes_nombre","categoria","producto","cantidad","total_venta"]
 
-df_ordenado = df.sort_values(
+    df_ordenado = df.sort_values(
     by="total_venta",
     ascending=False
 )
 
-st.dataframe(
-    df_ordenado[columnas].head(12),
-    use_container_width=True
-)
+    st.dataframe(
+        df_ordenado[columnas].head(12),
+        use_container_width=True
+    )
 
 
 with Exploracion:
